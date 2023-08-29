@@ -1,0 +1,268 @@
+﻿<UserControl
+    x:Class="Tasks.Show.Views.EditTaskView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="clr-namespace:Tasks.Show.Controls"
+    xmlns:h="clr-namespace:Tasks.Show.Helpers"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:u="clr-namespace:Tasks.Show.UserControls"
+    xmlns:utils="clr-namespace:Tasks.Show.Utils"
+    xmlns:views="clr-namespace:Tasks.Show.Views"
+    xmlns:wpf="clr-namespace:PixelLab.Wpf;assembly=PixelLab.Wpf"
+    x:Name="This">
+
+    <UserControl.Resources>
+        <sys:String x:Key="notScheduled">Not scheduled</sys:String>
+    </UserControl.Resources>
+
+    <Grid Background="{Binding ElementName=This, Path=Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <wpf:InfoTextBox
+            x:Name="m_textBox"
+            Height="30"
+            Margin="10"
+            Padding="7,3,150,-3"
+            h:Attached.IsSelected="{Binding ElementName=TaskDetailsReveal, Path=IsExpanded}"
+            GotFocus="m_textBox_GotFocus"
+            PreviewMouseLeftButtonDown="m_textBox_PreviewMouseLeftButtonDown"
+            Style="{StaticResource DarkTextBox}"
+            Text="{Binding Path=TaskString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+            TextBoxInfo="Add a new task..."
+            TextChanged="m_textBox_TextChanged" />
+
+        <!--  Buttons  -->
+        <StackPanel
+            Grid.Row="0"
+            Margin="0,15,15,0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Orientation="Horizontal"
+            Visibility="{Binding ElementName=TaskDetailsReveal, Path=IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Button
+                Width="60"
+                Height="20"
+                Margin="0,0,3,0"
+                Click="Button_Click"
+                Style="{StaticResource FlatButton}"
+                Tag="First">
+                Save
+            </Button>
+            <Button
+                Width="60"
+                Height="20"
+                Click="CancelButton_Click"
+                Command="utils:Commands.Cancel"
+                CommandParameter="{Binding Task}"
+                IsCancel="True"
+                Style="{StaticResource FlatButton}"
+                Tag="Last">
+                Cancel
+            </Button>
+        </StackPanel>
+
+        <Border
+            x:Name="RevealContainer"
+            Grid.Row="1"
+            Margin="0,0,0,0">
+            <wpf:Reveal x:Name="TaskDetailsReveal" Duration="150">
+
+                <Grid Width="{Binding ElementName=RevealContainer, Path=ActualWidth}" Margin="0,-4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="41" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="29" />
+                        <RowDefinition Height="29" />
+                        <RowDefinition Height="8" />
+                    </Grid.RowDefinitions>
+
+                    <!--  Divider  -->
+                    <Rectangle
+                        Grid.RowSpan="2"
+                        Grid.Column="2"
+                        Width="1"
+                        Margin="0,4"
+                        HorizontalAlignment="Right"
+                        Fill="#40000000" />
+                    <Rectangle
+                        Grid.RowSpan="2"
+                        Grid.Column="3"
+                        Width="1"
+                        Margin="0,4"
+                        HorizontalAlignment="Left"
+                        Fill="#30FFFFFF" />
+
+                    <!--  Fake CheckBox  -->
+                    <Border
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        Width="18"
+                        Height="18"
+                        Margin="-4,-1,4,0"
+                        VerticalAlignment="Center"
+                        Background="#80FFFFFF"
+                        BorderBrush="#40000000"
+                        BorderThickness="1"
+                        SnapsToDevicePixels="True" />
+
+                    <!--  Description  -->
+                    <c:EditableTextBlock
+                        Grid.Column="2"
+                        Margin="-6,-4,12,-4"
+                        VerticalAlignment="Bottom"
+                        AcceptsReturn="False"
+                        Foreground="White"
+                        InfoText="Description of the task"
+                        Text="{Binding Path=Task.Description}">
+                        <c:EditableTextBlock.Style>
+                            <Style TargetType="c:EditableTextBlock">
+                                <Setter Property="SnapsToDevicePixels" Value="True" />
+                                <Setter Property="OverridesDefaultStyle" Value="True" />
+                                <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                <Setter Property="FontFamily" Value="{StaticResource PrimaryFontFamily}" />
+                                <Setter Property="FontSize" Value="17" />
+                                <Setter Property="FontWeight" Value="Light" />
+                                <Setter Property="AllowDrop" Value="True" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="c:EditableTextBlock">
+                                            <Grid>
+                                                <Border
+                                                    Name="Border"
+                                                    Margin="1"
+                                                    Background="#FFFFFF"
+                                                    CornerRadius="2"
+                                                    Opacity="0.0" />
+
+                                                <TextBlock
+                                                    x:Name="InfoTextBlock"
+                                                    Margin="8,2,6,4"
+                                                    Opacity="0.65"
+                                                    Text="{TemplateBinding InfoText}" />
+                                                <ScrollViewer x:Name="PART_ContentHost" Margin="6,2,6,4" />
+                                                <TextBlock
+                                                    x:Name="InvisibleText"
+                                                    HorizontalAlignment="Left"
+                                                    IsHitTestVisible="False"
+                                                    Opacity="0"
+                                                    Text="{TemplateBinding Text}" />
+                                                <Rectangle
+                                                    x:Name="CrossoutRectangle"
+                                                    Width="{Binding ElementName=InvisibleText, Path=ActualWidth}"
+                                                    Height="1"
+                                                    Margin="8,2,4,-2"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    Fill="#C02A2F31"
+                                                    IsHitTestVisible="False"
+                                                    Visibility="Collapsed" />
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Border" Property="Background" Value="#EEEEEE" />
+                                                    <Setter TargetName="Border" Property="BorderBrush" Value="#EEEEEE" />
+                                                    <Setter Property="Foreground" Value="#888888" />
+                                                </Trigger>
+                                                <Trigger Property="IsInfoTextVisible" Value="False">
+                                                    <Setter TargetName="InfoTextBlock" Property="Visibility" Value="Collapsed" />
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Border" Property="Opacity" Value="0.1" />
+                                                </Trigger>
+                                                <Trigger Property="IsFocused" Value="True">
+                                                    <Setter TargetName="InfoTextBlock" Property="Visibility" Value="Collapsed" />
+                                                    <Setter TargetName="Border" Property="Opacity" Value="0.2" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </c:EditableTextBlock.Style>
+                    </c:EditableTextBlock>
+
+                    <!--  Due Date  -->
+                    <StackPanel
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Margin="2,0,0,0"
+                        VerticalAlignment="Top"
+                        Opacity="{Binding Task.IsComplete, Converter={StaticResource DimCompleteItemConverter}}"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Foreground="White"
+                            Text="by" />
+                        <u:DateDropDown
+                            Margin="-4,0,0,0"
+                            Date="{Binding Task.Due, Mode=TwoWay}"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            Opacity="{Binding Task.IsComplete, Converter={StaticResource HalfDimCompleteItemConverter}}" />
+                    </StackPanel>
+
+                    <!--  Folder Name  -->
+                    <StackPanel
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Margin="24,2,24,-2"
+                        VerticalAlignment="Bottom"
+                        Opacity="{Binding Task.IsComplete, Converter={StaticResource DimCompleteItemConverter}}"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Foreground="White"
+                            Text="in" />
+                        <u:FolderDropDown
+                            Margin="-4,0,0,0"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            RequestFolderChange="FolderDropDown_RequestFolderChange" />
+                    </StackPanel>
+
+                    <!--  Time to Complete  -->
+                    <StackPanel
+                        Grid.Row="1"
+                        Grid.Column="3"
+                        Margin="24,0,24,0"
+                        VerticalAlignment="Top"
+                        Opacity="{Binding Task.IsComplete, Converter={StaticResource DimCompleteItemConverter}}"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Foreground="White"
+                            Text="for" />
+                        <u:TimeSpanDropDown
+                            Margin="-4,0,0,0"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            Duration="{Binding Task.Estimate, Mode=TwoWay}" />
+                    </StackPanel>
+
+                </Grid>
+            </wpf:Reveal>
+        </Border>
+
+        <Border
+            Grid.RowSpan="2"
+            Height="1"
+            VerticalAlignment="Bottom"
+            Background="#6000" />
+
+    </Grid>
+</UserControl>
